@@ -2,7 +2,9 @@ name: Notificador dolar
 
 on:
   schedule:
-    - cron: "0 13 * * *" # 13:00 UTC = 8:00 am Colombia
+    # Horario de bolsa: 8:00 am a 1:00 pm Colombia (13:00-18:00 UTC), lun-vie
+    - cron: "*/15 13-17 * * 1-5"
+    - cron: "0 18 * * 1-5"
   workflow_dispatch:
 
 permissions:
