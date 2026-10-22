@@ -29,8 +29,20 @@ CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 UMBRAL = 10  # pesos de baja para avisar
 
 
-def precio_actual():
-    """COP por 1 USD (Yahoo Finance, intradia)."""
+def _twelvedata(clave):
+    r = requests.get(
+        "https://api.twelvedata.com/price",
+        params={"symbol": "USD/COP", "apikey": clave},
+        timeout=20,
+    )
+    r.raise_for_status()
+    datos = r.json()
+    if "price" not in datos:
+        raise ValueError(datos.get("message", datos))
+    return float(datos["price"])
+
+
+def _yahoo():
     r = requests.get(
         "https://query1.finance.yahoo.com/v8/finance/chart/COP=X",
         params={"interval": "1m", "range": "1d"},
@@ -44,6 +56,17 @@ def precio_actual():
     )
     r.raise_for_status()
     return float(r.json()["chart"]["result"][0]["meta"]["regularMarketPrice"])
+
+
+def precio_actual():
+    """COP por 1 USD: Twelve Data si hay clave; Yahoo Finance como respaldo."""
+    clave = os.environ.get("TWELVEDATA_API_KEY", "")
+    if clave:
+        try:
+            return _twelvedata(clave)
+        except Exception as e:
+            logging.warning("Twelve Data fallo (%s); usando Yahoo", type(e).__name__)
+    return _yahoo()
 
 
 def avisar(texto):
