@@ -19,10 +19,11 @@ page = ctx.new_page()
 
 def fetch(url):
     page.goto(url, timeout=45000)
-    btn = page.get_by_text("Continue shopping")
+    btn = page.get_by_role("button", name="Continue shopping")
     if btn.count():
         btn.first.click()
         page.wait_for_load_state()
+        page.wait_for_timeout(2000)
     return page.content()
 
 
