@@ -33,7 +33,10 @@ for url in URLS:
         print(url, "fetch error:", e)
         continue
 
-    if ("captcha" in html.lower() or "api-services-support@amazon.com" in html
+    print(url, "title:", page.title(), "| len:", len(html))
+    if ("Enter the characters you see below" in html
+            or "Type the characters you see in this image" in html
+            or "api-services-support@amazon.com" in html
             or "Click the button below to continue shopping" in html):
         status = "blocked"
     elif 'id="add-to-cart-button"' in html or 'id="buy-now-button"' in html:
