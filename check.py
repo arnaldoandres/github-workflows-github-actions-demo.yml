@@ -24,6 +24,7 @@ def fetch(url):
         btn.first.click()
         page.wait_for_load_state()
         page.wait_for_timeout(2000)
+        page.goto(url, timeout=45000)
     return page.content()
 
 
@@ -42,6 +43,8 @@ for url in URLS:
         status = "blocked"
     elif 'id="add-to-cart-button"' in html or 'id="buy-now-button"' in html:
         status = "available"
+    elif 'id="productTitle"' not in html:
+        status = "blocked"  # no es la página del producto
     else:
         status = "unavailable"
 
