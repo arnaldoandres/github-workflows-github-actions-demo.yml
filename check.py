@@ -1,4 +1,5 @@
 import os, json, urllib.request, urllib.parse
+from playwright.sync_api import sync_playwright
 
 URLS = os.environ["PRODUCT_URL"].split()
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -7,13 +8,27 @@ STATE = "state.json"
 
 state = json.load(open(STATE)) if os.path.exists(STATE) else {}
 
+pw = sync_playwright().start()
+browser = pw.chromium.launch()
+ctx = browser.new_context(
+    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+    locale="en-US",
+)
+page = ctx.new_page()
+
+
+def fetch(url):
+    page.goto(url, timeout=45000)
+    btn = page.get_by_text("Continue shopping")
+    if btn.count():
+        btn.first.click()
+        page.wait_for_load_state()
+    return page.content()
+
+
 for url in URLS:
-    req = urllib.request.Request(url, headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9",
-    })
     try:
-        html = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "ignore")
+        html = fetch(url)
     except Exception as e:
         print(url, "fetch error:", e)
         continue
@@ -37,4 +52,6 @@ for url in URLS:
     if status != "blocked":
         state[url] = status
 
+browser.close()
+pw.stop()
 json.dump(state, open(STATE, "w"))
