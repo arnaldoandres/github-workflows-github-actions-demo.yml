@@ -52,7 +52,8 @@ for url in URLS:
     print(f"{url} prev={prev or '-'} now={status}")
 
     if status == "available" and prev != "available":
-        data = urllib.parse.urlencode({"chat_id": CHAT, "text": f"¡Disponible en Amazon!\n{url}"}).encode()
+        name = page.title().removeprefix("Amazon.com: ").removesuffix(" : Video Games")
+        data = urllib.parse.urlencode({"chat_id": CHAT, "text": f"¡Disponible en Amazon!\n{name}\n{url}"}).encode()
         urllib.request.urlopen(f"https://api.telegram.org/bot{TOKEN}/sendMessage", data, timeout=30)
 
     # "blocked" no pisa el último estado conocido
