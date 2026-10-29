@@ -16,6 +16,10 @@ jobs:
           path: state.json
           key: state-${{ github.run_id }}
           restore-keys: state-
+      - name: Install browser
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
       - name: Check product
         run: python3 check.py
         env:
