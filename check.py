@@ -41,7 +41,14 @@ for i, url in enumerate(URLS * ROUNDS):
         continue
 
     print(url, "title:", page.title(), "| len:", len(html))
-    if ("Enter the characters you see below" in html
+    if "walmart.com" in url:
+        if "schema.org/InStock" in html:
+            status = "available"
+        elif "schema.org/OutOfStock" in html:
+            status = "unavailable"
+        else:
+            status = "blocked"  # "Robot or human?" u otra página sin datos del producto
+    elif ("Enter the characters you see below" in html
             or "Type the characters you see in this image" in html
             or "api-services-support@amazon.com" in html
             or "Click the button below to continue shopping" in html):
