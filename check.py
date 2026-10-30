@@ -1,4 +1,4 @@
-import os, json, urllib.request, urllib.parse
+import os, json, time, urllib.request, urllib.parse
 from playwright.sync_api import sync_playwright
 
 URLS = os.environ["PRODUCT_URL"].split()
@@ -28,7 +28,12 @@ def fetch(url):
     return page.content()
 
 
-for url in URLS:
+ROUNDS = 5      # revisiones por ejecución
+PAUSE = 60 / len(URLS)  # segundos entre revisiones, ~1 min por producto
+
+for i, url in enumerate(URLS * ROUNDS):
+    if i:
+        time.sleep(PAUSE)
     try:
         html = fetch(url)
     except Exception as e:
